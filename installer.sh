@@ -67,32 +67,37 @@ function setupSystemCalls() {
 
 }
 
-if ! [ -d $INSTALLTION_DIR ]; then
-  mkdir $INSTALLTION_DIR
-fi
+# if ! [ -d $INSTALLTION_DIR ]; then
+#   mkdir $INSTALLTION_DIR
+# fi
 
-if ! [ -d $KERNEL_DIR ]; then
-  setupKernel
-fi
+# if ! [ -d $KERNEL_DIR ]; then
+#   setupKernel
+# fi
 
-if ! [ -d $SYSCALLS_DIR ]; then
-  setupSystemCalls
-fi
+# if ! [ -d $SYSCALLS_DIR ]; then
+#   setupSystemCalls
+# fi
 
-if [ "$#" -ne 5 ]; then
-  echo "Provide the list of syscall numbers"
-  exit 1
-fi
+# if [ "$#" -ne 5 ]; then
+#   echo "Provide the list of syscall numbers"
+#   exit 1
+# fi
 
 
-if ! [ -d $LIBC_DIR ]; then
-  setupLibC
-fi
+# if ! [ -d $LIBC_DIR ]; then
+#   setupLibC
+# fi
 
 echo "setting up prerequisites"
 
 #kernel
 cd $KERNEL_DIR
+
+apt-get install gcc libncurses5-dev bison flex libssl-dev libelf-dev
+apt-get update
+apt-get upgrade
+
 
 make olddefconfig
 make -j $(nproc)
