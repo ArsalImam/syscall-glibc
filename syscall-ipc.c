@@ -87,21 +87,21 @@ SYSCALL_DEFINE2(msg_send,
     struct message *message = kmalloc(sizeof(struct message), GFP_KERNEL);
     if (!message)
     {
-        return -ENOMEM;
+        return ENOMEM;
     }
 
     message->data = kmalloc(size, GFP_KERNEL);
     if (!message->data)
     {
         kfree(message);
-        return -ENOMEM;
+        return ENOMEM;
     }
 
     if (copy_from_user(message->data, message, size))
     {
         kfree(message->data);
         kfree(message);
-        return -ENOMEM;
+        return ENOMEM;
     }
     message->size = size;
     INIT_LIST_HEAD(&message->node);
@@ -121,7 +121,7 @@ SYSCALL_DEFINE2(msg_send,
 }
 
 // When msg_receive is unblocked, the server process should acknowledge the message by using msg_ack.
-SYSCALL_DEFINE0(msg_acknowledged)
+SYSCALL_DEFINE0(msg_ack)
 {
 
     // here, we only need to unblock the sender message
