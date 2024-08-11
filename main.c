@@ -21,7 +21,7 @@ int strtsrv()
 
     for (;;)
     {
-        int status = prvpn_msgrcve(buffer, size);
+        int status = dsrpt_msgrcve(buffer, size);
         if (status != 0)
         {
             printf("error received from message received: %i \n", status);
@@ -29,7 +29,7 @@ int strtsrv()
         buffer[size] = '\0';
         printf("pid: %i  |  message is received: %s\n", getpid(), buffer);
 
-        status = prvpn_ackmsg();
+        status = dsrpt_ackmsg();
         if (status != 0)
         {
             printf("error while acknowledging the message: %i \n", status);
@@ -43,16 +43,16 @@ int invkclnt(char *arg, char *lstarg)
     switch (tochar(arg))
     {
     case 0x6371:
-        return prvpn_crtque();
+        return dsrpt_crtque();
 
     case 0x6471:
-        return prvpn_dltque();
+        return dsrpt_dltque();
 
     case 0x736D:
         if (tochar(lstarg) == 0x736D)
             return EINVAL;
 
-        return prvpn_sndmsg(lstarg, sizeof(lstarg));
+        return dsrpt_sndmsg(lstarg, sizeof(lstarg));
 
     default:
         return EINVAL;

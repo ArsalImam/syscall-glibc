@@ -2,29 +2,29 @@
 #include <stdlib.h>
 #include <string.h>
 
-int prvpn_crtque()
+int dsrpt_crtque()
 {
     printf("queue creation");
     return 0;
 }
 
-int prvpn_dltque()
+int dsrpt_dltque()
 {
     printf("queue deletion");
     return 0;
 }
 
-int prvpn_sndmsg(char *message, size_t size)
+int dsrpt_sndmsg(char *message, size_t size)
 {
     return 0;
 }
 
-int prvpn_ackmsg()
+int dsrpt_ackmsg()
 {
     return 0;
 }
 
-int prvpn_msgrcve(char* buffer, size_t size)
+int dsrpt_msgrcve(char* buffer, size_t size)
 {
      const char *new_data = "Test message sent";
    
