@@ -41,6 +41,8 @@ function setupLibC() {
   else
       echo "sysdep_routines += dsrpt-syscall" >> $LIBC_SRC/Makefile
   fi
+
+  
 }
 
 function setupSystemCalls() {
