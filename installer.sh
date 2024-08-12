@@ -23,6 +23,11 @@ function setupKernel() {
 function setupLibC() {
   git clone https://sourceware.org/git/glibc.git $LIBC_DIR
 
+  cd $LIBC_DIR
+  git stash
+  git checkout "glibc-$(ldd --version | awk '/ldd/{print $NF}')"
+  cd $DIR
+
   LIBC_SRC=$LIBC_DIR/sysdeps/unix/sysv/linux/
   LIBC_SRC_FILE=$LIBC_SRC/dsrpt-syscall.c
 
@@ -39,10 +44,12 @@ function setupLibC() {
   then
       echo "makefile already configured"
   else
-      echo "sysdep_routines += dsrpt-syscall" >> $LIBC_SRC/Makefile
+  
+      echo "CSRC += dsrpt-syscall.c" >> $LIBC_SRC/Makefile
+      # echo "sysdep_routines += dsrpt-syscall" >> $LIBC_SRC/Makefile
   fi
-
-  patch $LIBC_DIR/include/unistd.h ./unistd.h.patch 
+  cp $DIR/dsrpt-syscall.h $LIBC_SRC/include/
+  # patch $LIBC_DIR/include/unistd.h ./unistd.h.patch 
 }
 
 function setupSystemCalls() {
@@ -87,27 +94,33 @@ if [ "$#" -ne 5 ]; then
 fi
 
 
-if ! [ -d $LIBC_DIR ]; then
-  setupLibC
-fi
+# if ! [ -d $LIBC_DIR ]; then
+# fi
+
+setupLibC "$@"
 
 echo "setting up prerequisites"
 
 #kernel
-cd $KERNEL_DIR
+# cd $KERNEL_DIR
 
-apt-get install gcc libncurses5-dev bison flex libssl-dev libelf-dev
-apt-get update
-apt-get upgrade
+# apt-get install gcc libncurses5-dev bison flex libssl-dev libelf-dev
+# apt-get update
+# apt-get upgrade
 
 
-make olddefconfig
-make -j $(nproc)
-make -j $(nproc) modules_install
-make install
+# make olddefconfig
+# make -j $(nproc)
+# make -j $(nproc) modules_install
+# make install
+
+apt-get install libnsl-dev libnss3-dev
 
 cd $LIBC_DIR
 mkdir ../glibc-build
 cd ../glibc-build
-../glibc/configure --prefix=/usr
-make -j$(nproc)
+../glibc/configure --prefix=/usr 
+
+# export CFLAGS="$CFLAGS -Wno-error=attributes -O2 -D_FORTIFY_SOURCE=1"
+make CFLAGS="-Wno-error=attributes  -O2 -D_FORTIFY_SOURCE=1" -j$(nproc) 
+make CFLAGS="-Wno-error=attributes  -O2 -D_FORTIFY_SOURCE=1" install
