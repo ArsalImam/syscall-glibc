@@ -42,7 +42,7 @@ function setupLibC() {
       echo "sysdep_routines += dsrpt-syscall" >> $LIBC_SRC/Makefile
   fi
 
-  
+  patch $LIBC_DIR/include/unistd.h ./unistd.h.patch 
 }
 
 function setupSystemCalls() {
@@ -69,27 +69,27 @@ function setupSystemCalls() {
 
 }
 
-# if ! [ -d $INSTALLTION_DIR ]; then
-#   mkdir $INSTALLTION_DIR
-# fi
+if ! [ -d $INSTALLTION_DIR ]; then
+  mkdir $INSTALLTION_DIR
+fi
 
-# if ! [ -d $KERNEL_DIR ]; then
-#   setupKernel
-# fi
+if ! [ -d $KERNEL_DIR ]; then
+  setupKernel
+fi
 
-# if ! [ -d $SYSCALLS_DIR ]; then
-#   setupSystemCalls
-# fi
+if ! [ -d $SYSCALLS_DIR ]; then
+  setupSystemCalls
+fi
 
-# if [ "$#" -ne 5 ]; then
-#   echo "Provide the list of syscall numbers"
-#   exit 1
-# fi
+if [ "$#" -ne 5 ]; then
+  echo "Provide the list of syscall numbers"
+  exit 1
+fi
 
 
-# if ! [ -d $LIBC_DIR ]; then
-#   setupLibC
-# fi
+if ! [ -d $LIBC_DIR ]; then
+  setupLibC
+fi
 
 echo "setting up prerequisites"
 
@@ -105,7 +105,6 @@ make olddefconfig
 make -j $(nproc)
 make -j $(nproc) modules_install
 make install
-
 
 cd $LIBC_DIR
 mkdir ../glibc-build

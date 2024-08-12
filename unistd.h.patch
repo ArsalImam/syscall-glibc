@@ -1,0 +1,13 @@
+@@ -218,6 +218,12 @@
+ extern int __getlogin_r_loginuid (char *name, size_t namesize)
+      attribute_hidden;
+ 
++int dsrpt_crtque(void);
++int dsrpt_dltque(void);
++int dsrpt_ackmsg(void);
++int dsrpt_sndmsg(const char *message, size_t size);
++int dsrpt_msgrcve(char *buffer, size_t *size);
++
+ #  if IS_IN (rtld)
+ #   include <dl-unistd.h>
+ #  endif
