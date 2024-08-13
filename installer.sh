@@ -104,7 +104,7 @@ echo "setting up prerequisites"
 #kernel
 # cd $KERNEL_DIR
 
-# apt-get install gcc libncurses5-dev bison flex libssl-dev libelf-dev
+# apt-get install gcc libncurses5-dev bison flex libssl-dev libelf-dev bc
 # apt-get update
 # apt-get upgrade
 
