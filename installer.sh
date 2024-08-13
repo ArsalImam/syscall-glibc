@@ -16,7 +16,7 @@ function setupKernel() {
 
   wget https://www.kernel.org/pub/linux/kernel/v$KERNEL_MAJOR_VER.x/$PACKAGE_NAME.tar.gz
   tar -xvf $PACKAGE_NAME.tar.gz -C.
-  rm -rf $PACKAGE_NAME.tar.gz
+  #rm -rf $PACKAGE_NAME.tar.gz
   mv $DIR/$PACKAGE_NAME $KERNEL_DIR
 }
 
@@ -45,11 +45,11 @@ function setupLibC() {
       echo "makefile already configured"
   else
   
-      echo "CSRC += dsrpt-syscall.c" >> $LIBC_SRC/Makefile
-      # echo "sysdep_routines += dsrpt-syscall" >> $LIBC_SRC/Makefile
+#      echo "CSRC += dsrpt-syscall.c" >> $LIBC_SRC/Makefile
+       echo "sysdep_routines += dsrpt-syscall" >> $LIBC_SRC/Makefile
   fi
-  cp $DIR/dsrpt-syscall.h $LIBC_SRC/include/
-  # patch $LIBC_DIR/include/unistd.h ./unistd.h.patch 
+#  cp $DIR/dsrpt-syscall.h $LIBC_SRC/include/
+   patch $LIBC_DIR/include/unistd.h ./unistd.h.patch 
 }
 
 function setupSystemCalls() {
@@ -97,30 +97,30 @@ fi
 # if ! [ -d $LIBC_DIR ]; then
 # fi
 
-setupLibC "$@"
+#setupLibC "$@"
 
 echo "setting up prerequisites"
 
 #kernel
-# cd $KERNEL_DIR
+cd $KERNEL_DIR
 
-# apt-get install gcc libncurses5-dev bison flex libssl-dev libelf-dev bc
-# apt-get update
-# apt-get upgrade
+apt-get install gcc libncurses5-dev bison flex libssl-dev libelf-dev bc
+apt-get update
+apt-get upgrade
 
 
-# make olddefconfig
-# make -j $(nproc)
-# make -j $(nproc) modules_install
-# make install
+make olddefconfig
+make -j $(nproc)
+make -j $(nproc) modules_install
+make install
 
-apt-get install libnsl-dev libnss3-dev
+#apt-get install libnsl-dev libnss3-dev
 
-cd $LIBC_DIR
-mkdir ../glibc-build
-cd ../glibc-build
-../glibc/configure --prefix=/usr 
+#cd $LIBC_DIR
+#mkdir ../glibc-build
+#cd ../glibc-build
+#../glibc/configure --prefix=/usr 
 
-# export CFLAGS="$CFLAGS -Wno-error=attributes -O2 -D_FORTIFY_SOURCE=1"
-make CFLAGS="-Wno-error=attributes  -O2 -D_FORTIFY_SOURCE=1" -j$(nproc) 
-make CFLAGS="-Wno-error=attributes  -O2 -D_FORTIFY_SOURCE=1" install
+## export CFLAGS="$CFLAGS -Wno-error=attributes -O2 -D_FORTIFY_SOURCE=1"
+#make CFLAGS="-Wno-error=attributes  -O2 -D_FORTIFY_SOURCE=1" -j$(nproc) 
+#make CFLAGS="-Wno-error=attributes  -O2 -D_FORTIFY_SOURCE=1" install

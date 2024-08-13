@@ -13,10 +13,11 @@ struct message
     struct list_head node;
 };
 
-struct list_head queue;
-struct mutex mutex_lock;
 
-wait_queue_head_t wq_sender, wq_receiver;
+static struct list_head queue;
+static struct mutex mutex_lock;
+
+static wait_queue_head_t wq_sender, wq_receiver;
 
 // create_queue system call creates a msg queue in kernel space if it's already not created,
 // otherwise return the one that has already been created.
