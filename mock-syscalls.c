@@ -17,11 +17,11 @@ int dsrpt_dltque()
 
 int dsrpt_sndmsg(char *message, size_t size)
 {
-    printf("usrspc: sndmsg\n");
-    return syscall(603, message, size);
+    int syscode = syscall(603, message, size);
+    return syscode;
 }
 
-int dsrpt_msgrcve(char* buffer, size_t size)
+int dsrpt_msgrcve(char* buffer, size_t* size)
 {
     return syscall(604, buffer, size);
 }

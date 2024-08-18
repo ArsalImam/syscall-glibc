@@ -24,8 +24,8 @@ int strtsrv()
     }
 
     char buffer[128];
-    size_t size = sizeof buffer;
-
+    size_t* size;
+    
     printf("starting server...");
     
     for (;;)
@@ -37,13 +37,9 @@ int strtsrv()
         }
 
         int status = dsrpt_msgrcve(buffer, size);
-        if (status != 0)
+        if (status == 0)
         {
-            // printf("error received from message received: %i \n", status);
-        }
-        else 
-        {
-            buffer[size] = '\0';
+            buffer[*size] = '\0';
             printf("pid: %i  |  message is received: %s\n", getpid(), buffer);
 
             status = dsrpt_ackmsg();
@@ -59,7 +55,7 @@ int strtsrv()
 int invkclnt(char *arg, char *lstarg)
 {
 
-    printf("%s %04x", arg, tochar(arg));
+    printf("%s %04x\n", arg, tochar(arg));
     switch (tochar(arg))
     {
 
@@ -75,7 +71,6 @@ int invkclnt(char *arg, char *lstarg)
     case 0x736D:
         if (tochar(lstarg) == 0x736D)
             return EINVAL;
-
         return dsrpt_sndmsg(lstarg, sizeof(lstarg));
 
     default:

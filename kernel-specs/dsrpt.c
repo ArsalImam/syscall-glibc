@@ -79,11 +79,10 @@ SYSCALL_DEFINE0(delete_queue)
 // and unblocking should be implemented by placing the sender in the ready queue.
 SYSCALL_DEFINE2(msg_send,
                 // message data received from userspace
-                const char __user *, usrmsg,
+                char __user *, usrmsg,
                 // size of the message data from userspace
-                size_t __user *, size)
+                size_t __user, size)
 {
-    printk("message send invoked %s %i \n", usrmsg, size);
 
     // check queue exists
     if (!isinit)
@@ -91,63 +90,41 @@ SYSCALL_DEFINE2(msg_send,
         return ENODATA;
     }
 
-    printk("message send invoked 2\n");
- // convert the message coming from userspace to kernel
+    // convert the message coming from userspace to kernel
     struct message *message = kmalloc(sizeof(struct message), GFP_KERNEL);
-    printk("message send invoked 3 %d\n", message == NULL);
-    
     if (!message)
     {
-        printk("message send invoked 4\n");
         return ENOMEM;
     }
 
-    printk("message send invoked 5\n");
-    message->data = kmalloc(*size, GFP_KERNEL);
-    
-    printk("message send invoked 6 %d\n", message->data == NULL);
+    message->data = kmalloc(size, GFP_KERNEL);
     if (!message->data)
     {
-        printk("message send invoked 7\n");
         kfree(message);
         return ENOMEM;
     }
-    printk("message send invoked 8\n");
     
-    if (copy_from_user(message->data, usrmsg, *size))
+    if (copy_from_user(message->data, usrmsg, size))
     {
-        printk("message send invoked 9\n");
-    
         kfree(message->data);
         kfree(message);
         return ENOMEM;
     }
-    printk("message send invoked 10\n");
     
-    message->size = size;
-    printk("message send invoked 11\n");
+    message->size = &size;
     
     INIT_LIST_HEAD(&message->node);
-    printk("message send invoked 12\n");
     
     // appends message to the queue
     mutex_lock(&mtxlock);
-    printk("message send invoked 13\n");
-    
     list_add_tail(&message->node, &queue);
-    printk("message send invoked 14\n");
-    
     mutex_unlock(&mtxlock);
-    printk("message send invoked 15\n");
     
     // altered: Need to unblock the receiver call from here,
     wake_up(&wq_receiver);
-    printk("message send invoked 16\n");
-    
 
     // The blocking should be implemented by placing the sender process in the wait queue
-    wait_event_interruptible(wq_sender, false);
-    printk("message send invoked 17\n");
+    wait_event_interruptible(wq_sender, true);
     
     return 0;
 }
@@ -171,8 +148,6 @@ SYSCALL_DEFINE2(msg_receive,
                 // the size of message received
                 size_t __user *, size)
 {
-    printk("message receive invoked\n");
-
     // check queue exists and it contains message to send
     if (isinit == false || list_empty(&queue))
     {
@@ -180,33 +155,30 @@ SYSCALL_DEFINE2(msg_receive,
     }
 
     // block the receiver as the message is already received
-    wait_event_interruptible(wq_receiver, false);
-
+    wait_event_interruptible(wq_receiver, true);
+        
     // fetch the message from queue
     struct message *message;
     int success_code = 0;
-
+        
     mutex_lock(&mtxlock);
     message = list_first_entry(&queue, struct message, node);
     mutex_unlock(&mtxlock);
-
+        
     // convert message to user space from kernel
     // convert size of message to user space from kernel
-    if (copy_to_user(buffer, message->data, *message->size) || put_user(*message->size, size))
-    {
-        success_code = ENODATA;
-    }
+    copy_to_user(buffer, message->data, sizeof message->data);
+    put_user(sizeof message->data, size);
 
     // delete the message
+    mutex_lock(&mtxlock);
     list_del(&message->node);
-
     kfree(message->data);
     kfree(message);
-
     mutex_unlock(&mtxlock);
-
+        
     // unblock the sender process to send other message
     wake_up(&wq_sender);
-
+        
     return success_code;
 }
