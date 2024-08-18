@@ -23,7 +23,6 @@ int dsrpt_sndmsg(char *message, size_t size)
 
 int dsrpt_msgrcve(char* buffer, size_t size)
 {
-    printf("usrspc: msgrcve\n");
     return syscall(604, buffer, size);
 }
 

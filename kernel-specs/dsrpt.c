@@ -83,7 +83,7 @@ SYSCALL_DEFINE2(msg_send,
                 // size of the message data from userspace
                 size_t __user *, size)
 {
-    printk("message send invoked\n");
+    printk("message send invoked %s %i \n", usrmsg, size);
 
     // check queue exists
     if (!isinit)
@@ -91,40 +91,64 @@ SYSCALL_DEFINE2(msg_send,
         return ENODATA;
     }
 
-    // convert the message coming from userspace to kernel
+    printk("message send invoked 2\n");
+ // convert the message coming from userspace to kernel
     struct message *message = kmalloc(sizeof(struct message), GFP_KERNEL);
+    printk("message send invoked 3 %d\n", message == NULL);
+    
     if (!message)
     {
+        printk("message send invoked 4\n");
         return ENOMEM;
     }
 
+    printk("message send invoked 5\n");
     message->data = kmalloc(*size, GFP_KERNEL);
+    
+    printk("message send invoked 6 %d\n", message->data == NULL);
     if (!message->data)
     {
+        printk("message send invoked 7\n");
         kfree(message);
         return ENOMEM;
     }
-
+    printk("message send invoked 8\n");
+    
     if (copy_from_user(message->data, usrmsg, *size))
     {
+        printk("message send invoked 9\n");
+    
         kfree(message->data);
         kfree(message);
         return ENOMEM;
     }
+    printk("message send invoked 10\n");
+    
     message->size = size;
+    printk("message send invoked 11\n");
+    
     INIT_LIST_HEAD(&message->node);
-
+    printk("message send invoked 12\n");
+    
     // appends message to the queue
     mutex_lock(&mtxlock);
+    printk("message send invoked 13\n");
+    
     list_add_tail(&message->node, &queue);
+    printk("message send invoked 14\n");
+    
     mutex_unlock(&mtxlock);
-
+    printk("message send invoked 15\n");
+    
     // altered: Need to unblock the receiver call from here,
     wake_up(&wq_receiver);
+    printk("message send invoked 16\n");
+    
 
     // The blocking should be implemented by placing the sender process in the wait queue
     wait_event_interruptible(wq_sender, false);
-
+    printk("message send invoked 17\n");
+    
     return 0;
 }
 
