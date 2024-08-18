@@ -40,8 +40,14 @@ int strtsrv()
 
 int invkclnt(char *arg, char *lstarg)
 {
+
+    printf("%s %04x", arg, tochar(arg));
     switch (tochar(arg))
     {
+
+    case 0x6877:
+        return dsrpt_helwrld();
+
     case 0x6371:
         return dsrpt_crtque();
 
@@ -67,5 +73,5 @@ int main(int argc, char *argv[])
     if (1 == argc)
         return strtsrv();
 
-    return invkclnt(argv[0], argv[argc - 1]);
+    return invkclnt(argv[1], argv[argc - 1]);
 }

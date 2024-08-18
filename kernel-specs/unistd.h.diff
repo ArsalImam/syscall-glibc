@@ -1,0 +1,32 @@
+@@ -824,7 +824,7 @@ __SYSCALL(__NR_cachestat, sys_cachestat)
+ __SYSCALL(__NR_fchmodat2, sys_fchmodat2)
+ 
+ #undef __NR_syscalls
+-#define __NR_syscalls 453
++#define __NR_syscalls 607
+ 
+ /*
+  * 32 bit systems traditionally used different
+@@ -873,3 +873,22 @@ __SYSCALL(__NR_fchmodat2, sys_fchmodat2)
+ #define __NR_lstat64 __NR3264_lstat
+ #endif
+ #endif
++
++#define __NR_create_queue 601
++__SYSCALL(__NR_create_queue, sys_create_queue)
++
++#define __NR_delete_queue 602
++__SYSCALL(__NR_delete_queue, sys_delete_queue)
++
++#define __NR_snd_msg 603
++__SYSCALL(__NR_snd_msg, sys_msg_send)
++
++#define __NR_msg_rcv 604
++__SYSCALL(__NR_msg_rcv, sys_msg_receive)
++
++#define __NR_msg_ack 605
++__SYSCALL(__NR_msg_ack, sys_msg_ack)
++
++#define __NR_hello 606
++__SYSCALL(__NR_hello, sys_hello)
++

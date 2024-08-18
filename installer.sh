@@ -1,23 +1,44 @@
 #!/bin/bash
 
 DIR=$(pwd)
-INSTALLTION_DIR=~/dsrpt
+KERNEL_SPECS_DIR=$DIR/kernel-specs
 
+INSTALLTION_DIR=~/dsrpt
 KERNEL_DIR=$INSTALLTION_DIR/kernel
 LIBC_DIR=$INSTALLTION_DIR/glibc
 
-SYSCALLS_DIR=$KERNEL_DIR/dsrpt-syscall/
+SYSCALLS_DIR=$KERNEL_DIR/dsrpt/
 
 KERNEL_VER=$(uname -r | cut -d '-' -f1)
 KERNEL_MAJOR_VER=$(echo $KERNEL_VER | cut -d '.' -f1)
 
 function setupKernel() {
-  PACKAGE_NAME=linux-$(echo $KERNEL_VER | awk -F. -v OFS=. '{$NF += 1 ; print}')
+  PACKAGE_NAME=linux-$KERNEL_VER #$(echo $KERNEL_VER | awk -F. -v OFS=. '{$NF += 1 ; print}')
 
   wget https://www.kernel.org/pub/linux/kernel/v$KERNEL_MAJOR_VER.x/$PACKAGE_NAME.tar.gz
   tar -xvf $PACKAGE_NAME.tar.gz -C.
   #rm -rf $PACKAGE_NAME.tar.gz
   mv $DIR/$PACKAGE_NAME $KERNEL_DIR
+}
+
+function setupSystemCalls() {
+  
+  mkdir $SYSCALLS_DIR
+
+  cp $KERNEL_SPECS_DIR/dsrpt.c $SYSCALLS_DIR
+  echo "obj-y := dsrpt.o" > $SYSCALLS_DIR/Makefile
+    
+  patch $KERNEL_DIR/Kbuild $KERNEL_SPECS_DIR/Kbuild.diff
+  patch $KERNEL_DIR/Makefile $KERNEL_SPECS_DIR/MainMakefile.diff
+  patch $KERNEL_DIR/include/linux/syscalls.h $KERNEL_SPECS_DIR/syscall.h.diff 
+
+  patch $KERNEL_DIR/include/uapi/asm-generic/unistd.h $KERNEL_SPECS_DIR/unistd.h.diff 
+  patch $KERNEL_DIR/arch/x86/entry/syscalls/syscall_32.tbl $KERNEL_SPECS_DIR/syscall_32.tbl.diff
+  patch $KERNEL_DIR/arch/x86/entry/syscalls/syscall_64.tbl $KERNEL_SPECS_DIR/syscall_64.tbl.diff 
+
+  rm -rf $KERNEL_DIR/.config
+  cp /boot/config-$(uname -r) $KERNEL_DIR/
+  mv $KERNEL_DIR/config-$(uname -r) $KERNEL_DIR/.config
 }
 
 function setupLibC() {
@@ -42,43 +63,15 @@ function setupLibC() {
   
   if grep -R "dsrpt" $LIBC_SRC/Makefile
   then
-      echo "makefile already configured"
+    echo "makefile already configured"
   else
-  
-#      echo "CSRC += dsrpt-syscall.c" >> $LIBC_SRC/Makefile
-       echo "sysdep_routines += dsrpt-syscall" >> $LIBC_SRC/Makefile
+    echo "sysdep_routines += dsrpt-syscall" >> $LIBC_SRC/Makefile
   fi
 #  cp $DIR/dsrpt-syscall.h $LIBC_SRC/include/
-   patch $LIBC_DIR/include/unistd.h ./unistd.h.patch 
+  patch $LIBC_DIR/include/unistd.h ./unistd.h.patch 
 }
 
-function setupSystemCalls() {
-  
-  mkdir $SYSCALLS_DIR
-
-  cp $DIR/dsrpt-syscall.c $SYSCALLS_DIR
-  echo "obj-y := dsrpt-syscall.o" > $SYSCALLS_DIR/Makefile
-  echo "obj-y += dsrpt-syscall/" >> $KERNEL_DIR/Kbuild
-  
-  patch $KERNEL_DIR/include/linux/syscalls.h ./syscall.h.patch 
-
-  printf "add these system calls to the kernel's system call table. \n \
-  systemcall names: create_queue, delete_queue, msg_send, msg_receive, msg_ack \n \
-  This usually involves editing the files arch/x86/entry/syscalls/syscall_64.tbl \n \
-  548     common  dsrpt-syscall   sys_create_queue \n \
-  549     common  dsrpt-syscall   sys_delete_queue \n \
-  550     common  dsrpt-syscall       sys_msg_send \n \
-  551     common  dsrpt-syscall    sys_msg_receive \n \
-  552     common  dsrpt-syscall        sys_msg_ack \n \
-  and run the script again with sh ./installer.sh 500 501 502 503 504 505"
-
-  cp /boot/config-$(uname -r) $KERNEL_DIR/.config
-
-}
-
-if ! [ -d $INSTALLTION_DIR ]; then
-  mkdir $INSTALLTION_DIR
-fi
+mkdir $INSTALLTION_DIR
 
 if ! [ -d $KERNEL_DIR ]; then
   setupKernel
@@ -87,12 +80,6 @@ fi
 if ! [ -d $SYSCALLS_DIR ]; then
   setupSystemCalls
 fi
-
-if [ "$#" -ne 5 ]; then
-  echo "Provide the list of syscall numbers"
-  exit 1
-fi
-
 
 # if ! [ -d $LIBC_DIR ]; then
 # fi
@@ -109,7 +96,7 @@ apt-get update
 apt-get upgrade
 
 
-make olddefconfig
+make oldconfig
 make -j $(nproc)
 make -j $(nproc) modules_install
 make install

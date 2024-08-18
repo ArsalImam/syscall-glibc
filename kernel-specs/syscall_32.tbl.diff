@@ -1,0 +1,16 @@
+diff --git a/arch/x86/entry/syscalls/syscall_32.tbl b/arch/x86/entry/syscalls/syscall_32.tbl
+index 2d0b1bd86..a73838a61 100644
+--- a/arch/x86/entry/syscalls/syscall_32.tbl
++++ b/arch/x86/entry/syscalls/syscall_32.tbl
+@@ -457,3 +457,11 @@
+ 450	i386	set_mempolicy_home_node		sys_set_mempolicy_home_node
+ 451	i386	cachestat		sys_cachestat
+ 452	i386	fchmodat2		sys_fchmodat2
++601     common  dsrpt			sys_create_queue
++602     common  dsrpt			sys_delete_queue
++603     common  dsrpt			sys_msg_send
++604     common  dsrpt			sys_msg_receive
++605     common  dsrpt			sys_msg_ack
++606     common  dsrpt          sys_hello
++
++

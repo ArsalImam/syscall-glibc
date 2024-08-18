@@ -1,36 +1,38 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 int dsrpt_crtque()
 {
-    printf("queue creation");
-    return 0;
+    printf("usrspc: queue creation\n");
+    return syscall(601);
 }
 
 int dsrpt_dltque()
 {
-    printf("queue deletion");
-    return 0;
+    printf("usrspc: queue dlt\n");
+    return syscall(602);
 }
 
 int dsrpt_sndmsg(char *message, size_t size)
 {
-    return 0;
-}
-
-int dsrpt_ackmsg()
-{
-    return 0;
+    printf("usrspc: sndmsg\n");
+    return syscall(603, message, size);
 }
 
 int dsrpt_msgrcve(char* buffer, size_t size)
 {
-     const char *new_data = "Test message sent";
-   
-    if (strlen(new_data) < size)
-    {
-        strcpy(buffer, new_data);
-    }
-    return 0;
+    printf("usrspc: msgrcve\n");
+    return syscall(604, buffer, size);
+}
+
+int dsrpt_ackmsg()
+{
+    printf("usrspc: sckmsg\n");
+    return syscall(605);
+}
+
+int dsrpt_helwrld() {
+    return syscall(606);
 }

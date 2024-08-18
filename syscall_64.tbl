@@ -1,7 +1,0 @@
-548     common  dsrpt-syscall   sys_create_queue
-549     common  dsrpt-syscall   sys_delete_queue
-550     common  dsrpt-syscall       sys_msg_send
-551     common  dsrpt-syscall    sys_msg_receive
-552     common  dsrpt-syscall        sys_msg_ack
-
-

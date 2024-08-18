@@ -19,6 +19,12 @@ static struct   mutex mtxlock;
 
 static wait_queue_head_t wq_sender, wq_receiver;
 
+
+SYSCALL_DEFINE0(hello) {
+    pr_info("Disrupt SysCalls are available\n");
+    return 0;
+}
+
 // create_queue system call creates a msg queue in kernel space if it's already not created,
 // otherwise return the one that has already been created.
 SYSCALL_DEFINE0(create_queue)
