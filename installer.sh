@@ -48,10 +48,10 @@ function setupLibC() {
   LIBC_VER=$(ldd --version | awk '/ldd/{print $NF}')
   LIBC_PACKAGE_NAME=glibc-$LIBC_VER
 
-  # wget https://ftp.gnu.org/gnu/glibc/$LIBC_PACKAGE_NAME.tar.gz
+  wget https://ftp.gnu.org/gnu/glibc/$LIBC_PACKAGE_NAME.tar.gz
   tar -xvf $LIBC_PACKAGE_NAME.tar.gz -C.
   # rm -rf $PACKAGE_NAME.tar.gz
-  # mv $DIR/$LIBC_PACKAGE_NAME $LIBC_DIR
+  mv $DIR/$LIBC_PACKAGE_NAME $LIBC_DIR
 
 
 
@@ -114,16 +114,20 @@ fi
 
 
 
-apt-get install build-essential
+apt-get install build-essential gcc libncurses5-dev bison flex libssl-dev libelf-dev bc dwarves
+apt-get update
+apt-get upgrade
+
+
 apt-get build-dep glibc
 
-cd $LIBC_DIR
-mkdir ../glibc-build
-cd ../glibc-build
-../glibc/configure --prefix=/usr 
+#cd $LIBC_DIR
+#mkdir ../glibc-build
+#cd ../glibc-build
+#../glibc/configure --prefix=/usr 
 
-make -j $(nproc)
-make -j $(nproc) install
+#make -j $(nproc)
+#make -j $(nproc) install
 
 ## export CFLAGS="$CFLAGS -Wno-error=attributes -O2 -D_FORTIFY_SOURCE=1"
 #make CFLAGS="-Wno-error=attributes  -O2 -D_FORTIFY_SOURCE=1" -j$(nproc) 
