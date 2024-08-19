@@ -90,13 +90,13 @@ function setupLibC() {
 
 mkdir $INSTALLTION_DIR
 
-# if ! [ -d $KERNEL_DIR ]; then
-#   setupKernel
-# fi
+if ! [ -d $KERNEL_DIR ]; then
+   setupKernel
+fi
 
-# if ! [ -d $SYSCALLS_DIR ]; then
-#   setupSystemCalls
-# fi
+if ! [ -d $SYSCALLS_DIR ]; then
+  setupSystemCalls
+fi
 
 if ! [ -d $LIBC_DIR ]; then
   setupLibC
@@ -106,25 +106,19 @@ fi
 
 
 
-# echo "setting up prerequisites"
+echo "setting up prerequisites"
 
-# #kernel
-# cd $KERNEL_DIR
+#kernel
+cd $KERNEL_DIR
 
-# apt-get install gcc libncurses5-dev bison flex libssl-dev libelf-dev bc dwarves
-# apt-get update
-# apt-get upgrade
+apt-get install gcc libncurses5-dev bison flex libssl-dev libelf-dev bc dwarves
+apt-get update
+apt-get upgrade
 
-
-# make oldconfig
-# make -j $(nproc)
-# make -j $(nproc) modules_install
-# make install
-
-
-
-
-
+make oldconfig
+make -j $(nproc)
+make -j $(nproc) modules_install
+make install
 
 
 
