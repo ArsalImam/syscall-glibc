@@ -56,7 +56,7 @@ function setupLibC() {
   mv $LIBC_DIR/$GLIBC_DSRPT_OBJ /usr/local/lib/
   ldconfig
 
-  gcc $DIR/client.c -o $DIR/client -libdsrpt
+  gcc $DIR/client.c -o $DIR/client -ldsrpt
   chmod +x $DIR/client
 
 
