@@ -4,9 +4,10 @@
 #include <errno.h>
 #include <signal.h>
 
-//  g++ -DBYPS_LIBC_WRPPRS=1  client.c -o client
-//  g++ client.c -o client -libdsrpt
-#ifdef BYPS_LIBC_WRPPRS
+//gcc -DUSE_DSRPT_WRPPR=1  client.c -o client -ldsrpt
+#ifdef USE_DSRPT_WRPPR
+#include "dsrpt-syscall.h"
+#else
 #include "kernel-calls.c"
 #endif
 
@@ -14,39 +15,20 @@
 
 int strtsrv()
 {
-    pid_t pid;
-
-    pid = fork();
-    
-    if (pid == -1) {
-        perror("fork");
-        exit(EXIT_FAILURE);
-        return EAGAIN;
-    }
-
     char buffer[128];
     size_t* size;
-    
-    printf("starting server...");
-    
+
     for (;;)
     {
-
-        if (signal(SIGCHLD, SIG_IGN) == SIG_ERR) {
-            perror("signal");
-            exit(EXIT_FAILURE);
-        }
-
         int status = dsrpt_msgrcve(buffer, size);
         if (status == 0)
         {
-            buffer[*size] = '\0';
             printf("pid: %i  |  message is received: %s\n", getpid(), buffer);
-
+            
             status = dsrpt_ackmsg();
             if (status != 0)
             {
-                printf("error while acknowledging the message: %i \n", status);
+               printf("error while acknowledging the message: %i \n", status);
             }
         }
     }

@@ -47,13 +47,15 @@ function setupLibC() {
 
   mkdir -p $LIBC_DIR
   
-  GLIBC_DSRPT_SRC=dsrpt-syscall.c
+  GLIBC_DSRPT_SRC=dsrpt-syscall
   GLIBC_DSRPT_OBJ=libdsrpt.so
 
-  cp $GLIBC_SPECS_DIR/$GLIBC_DSRPT_SRC $LIBC_DIR/
+  cp $GLIBC_SPECS_DIR/$GLIBC_DSRPT_SRC.c $LIBC_DIR/
+  cp $GLIBC_SPECS_DIR/$GLIBC_DSRPT_SRC.h $LIBC_DIR/
 
-  gcc -shared -o $LIBC_DIR/$GLIBC_DSRPT_OBJ -fPIC $LIBC_DIR/$GLIBC_DSRPT_SRC
+  gcc -shared -o $LIBC_DIR/$GLIBC_DSRPT_OBJ -fPIC $LIBC_DIR/$GLIBC_DSRPT_SRC.c
   mv $LIBC_DIR/$GLIBC_DSRPT_OBJ /usr/local/lib/
+  mv $GLIBC_SPECS_DIR/$GLIBC_DSRPT_SRC.h /usr/local/include/
   ldconfig
 
   gcc $DIR/client.c -o $DIR/client -ldsrpt

@@ -148,14 +148,15 @@ SYSCALL_DEFINE2(msg_receive,
                 // the size of message received
                 size_t __user *, size)
 {
+
+    // block the receiver as the message is already received
+    wait_event_interruptible(wq_receiver, true);
+    
     // check queue exists and it contains message to send
     if (isinit == false || list_empty(&queue))
     {
         return ENODATA;
     }
-
-    // block the receiver as the message is already received
-    wait_event_interruptible(wq_receiver, true);
         
     // fetch the message from queue
     struct message *message;
@@ -173,9 +174,10 @@ SYSCALL_DEFINE2(msg_receive,
     // delete the message
     mutex_lock(&mtxlock);
     list_del(&message->node);
+    mutex_unlock(&mtxlock);
+    
     kfree(message->data);
     kfree(message);
-    mutex_unlock(&mtxlock);
         
     // unblock the sender process to send other message
     wake_up(&wq_sender);
