@@ -1,9 +1,11 @@
 #!/bin/bash
 
 DIR=$(pwd)
-KERNEL_SPECS_DIR=$DIR/kernel-specs
 
-INSTALLTION_DIR=~/dsrpt
+KERNEL_SPECS_DIR=$DIR/kernel-specs
+GLIBC_SPECS_DIR=$DIR/glibc-specs
+
+INSTALLTION_DIR=$DIR/../dsrpt
 KERNEL_DIR=$INSTALLTION_DIR/kernel
 LIBC_DIR=$INSTALLTION_DIR/glibc
 
@@ -43,18 +45,27 @@ function setupSystemCalls() {
 
 function setupLibC() {
 
-  rm -rf $LIBC_DIR
+  mkdir -p $LIBC_DIR
+  
+  GLIBC_DSRPT_SRC=dsrpt-syscall.c
+  GLIBC_DSRPT_OBJ=libdsrpt.so
 
-  LIBC_VER=$(ldd --version | awk '/ldd/{print $NF}')
-  LIBC_PACKAGE_NAME=glibc-$LIBC_VER
+  cp $GLIBC_SPECS_DIR/$GLIBC_DSRPT_SRC $LIBC_DIR/
 
-  wget https://ftp.gnu.org/gnu/glibc/$LIBC_PACKAGE_NAME.tar.gz
-  tar -xvf $LIBC_PACKAGE_NAME.tar.gz -C.
-  # rm -rf $PACKAGE_NAME.tar.gz
-  mv $DIR/$LIBC_PACKAGE_NAME $LIBC_DIR
+  gcc -shared -o $LIBC_DIR/$GLIBC_DSRPT_OBJ -fPIC $LIBC_DIR/$GLIBC_DSRPT_SRC
+  mv $LIBC_DIR/$GLIBC_DSRPT_OBJ /usr/local/lib/
+  ldconfig
+
+  gcc $DIR/client.c -o $DIR/client -libdsrpt
+  chmod +x $DIR/client
 
 
+  # LIBC_VER=$(ldd --version | awk '/ldd/{print $NF}')
+  # LIBC_PACKAGE_NAME=glibc-$LIBC_VER
 
+  # wget https://ftp.gnu.org/gnu/glibc/$LIBC_PACKAGE_NAME.tar.gz
+  # tar -xvf $LIBC_PACKAGE_NAME.tar.gz -C.
+  # mv $DIR/$LIBC_PACKAGE_NAME $LIBC_DIR
 
   # LIBC_SRC=$LIBC_DIR/sysdeps/unix/sysv/linux/
   # LIBC_SRC_FILE=$LIBC_SRC/dsrpt-syscall.c
@@ -93,6 +104,8 @@ fi
 
 
 
+
+
 # echo "setting up prerequisites"
 
 # #kernel
@@ -114,21 +127,31 @@ fi
 
 
 
-apt-get install build-essential gcc libncurses5-dev bison flex libssl-dev libelf-dev bc dwarves
-apt-get update
-apt-get upgrade
 
 
-apt-get build-dep glibc
+# apt-get install build-essential gcc libncurses5-dev bison flex libssl-dev libelf-dev bc dwarves
+# apt-get update
+# apt-get upgrade
+# apt-get build-dep glibc
 
-#cd $LIBC_DIR
-#mkdir ../glibc-build
-#cd ../glibc-build
-#../glibc/configure --prefix=/usr 
+# mkdir -p $LIBC_DIR/glibc-build
+# cd $LIBC_DIR/glibc-build
 
-#make -j $(nproc)
-#make -j $(nproc) install
+# export glibc_install="$(pwd)/install"
+# ../configure --prefix "$glibc_install"
+
+# make -j `nproc`
+# make install -j `nproc`
+
+
+
+
+
 
 ## export CFLAGS="$CFLAGS -Wno-error=attributes -O2 -D_FORTIFY_SOURCE=1"
 #make CFLAGS="-Wno-error=attributes  -O2 -D_FORTIFY_SOURCE=1" -j$(nproc) 
 #make CFLAGS="-Wno-error=attributes  -O2 -D_FORTIFY_SOURCE=1" install
+
+
+
+

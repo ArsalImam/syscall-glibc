@@ -4,9 +4,10 @@
 #include <errno.h>
 #include <signal.h>
 
-//  g++ -DIS_FOR_TESTING=1  main.c -o main
-#ifdef IS_FOR_TESTING
-#include "mock-syscalls.c"
+//  g++ -DBYPS_LIBC_WRPPRS=1  client.c -o client
+//  g++ client.c -o client -libdsrpt
+#ifdef BYPS_LIBC_WRPPRS
+#include "kernel-calls.c"
 #endif
 
 #define tochar(p) ((*p) * 256 + *(p + 1))
