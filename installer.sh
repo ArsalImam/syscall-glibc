@@ -96,6 +96,9 @@ if ! [ -d $KERNEL_DIR ]; then
    setupKernel
 fi
 
+cp $KERNEL_SPECS_DIR/dsrpt.c $SYSCALLS_DIR
+
+
 if ! [ -d $SYSCALLS_DIR ]; then
   setupSystemCalls
 fi

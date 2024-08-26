@@ -14,6 +14,7 @@ struct message
 };
 
 static bool     isinit = false;
+
 static struct   list_head queue;
 static struct   mutex mtxlock;
 
@@ -73,6 +74,8 @@ SYSCALL_DEFINE0(delete_queue)
     return 0;
 }
 
+int waitForReceiver = 1;
+
 // msg_send sends a message to a process. The arguments are message, size of message, msg-queue.
 // This is a blocking call. It should be unblocked when the server process acknowledges the message.
 // The blocking should be implemented by placing the sender process in the wait queue,
@@ -89,6 +92,7 @@ SYSCALL_DEFINE2(msg_send,
     {
         return ENODATA;
     }
+
 
     // convert the message coming from userspace to kernel
     struct message *message = kmalloc(sizeof(struct message), GFP_KERNEL);
@@ -120,12 +124,17 @@ SYSCALL_DEFINE2(msg_send,
     list_add_tail(&message->node, &queue);
     mutex_unlock(&mtxlock);
     
+//    wait_event_interruptible(wq_sender, (waitForReceiver == 1));
+
     // altered: Need to unblock the receiver call from here,
     wake_up(&wq_receiver);
 
     // The blocking should be implemented by placing the sender process in the wait queue
-    wait_event_interruptible(wq_sender, true);
-    
+//  wait_event_interruptible(wq_sender, true);
+
+    waitForReceiver = 0;
+    wait_event_interruptible(wq_sender, (waitForReceiver == 1));
+
     return 0;
 }
 
@@ -178,9 +187,10 @@ SYSCALL_DEFINE2(msg_receive,
     
     kfree(message->data);
     kfree(message);
-        
+
+    waitForReceiver = 1;
     // unblock the sender process to send other message
-    wake_up(&wq_sender);
+//    wake_up(&wq_sender);
         
     return success_code;
 }

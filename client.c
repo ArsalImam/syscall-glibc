@@ -20,13 +20,20 @@ int strtsrv()
 
     for (;;)
     {
+
+	int inpt, inpt2;
+	scanf("%i", &inpt);
+
         int status = dsrpt_msgrcve(buffer, size);
         if (status == 0)
         {
             printf("pid: %i  |  message is received: %s\n", getpid(), buffer);
             
+            scanf("%i", &inpt2);
+          
             status = dsrpt_ackmsg();
-            if (status != 0)
+          
+	    if (status != 0)
             {
                printf("error while acknowledging the message: %i \n", status);
             }
