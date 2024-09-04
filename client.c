@@ -5,11 +5,11 @@
 #include <signal.h>
 
 //gcc -DUSE_DSRPT_WRPPR=1  client.c -o client -ldsrpt
-#ifdef USE_DSRPT_WRPPR
-#include "dsrpt-syscall.h"
-#else
-#include "kernel-calls.c"
-#endif
+//#ifdef USE_DSRPT_WRPPR
+//#include "dsrpt-syscall.h"
+//#else
+//#include "kernel-calls.c"
+//#endif
 
 #define tochar(p) ((*p) * 256 + *(p + 1))
 

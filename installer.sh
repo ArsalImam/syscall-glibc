@@ -45,30 +45,32 @@ function setupSystemCalls() {
 
 function setupLibC() {
 
+  rm -rf $LIBC_DIR
+
   mkdir -p $LIBC_DIR
   
-  GLIBC_DSRPT_SRC=dsrpt-syscall
-  GLIBC_DSRPT_OBJ=libdsrpt.so
+#  GLIBC_DSRPT_SRC=dsrpt-syscall
+#  GLIBC_DSRPT_OBJ=libdsrpt.so
 
-  cp $GLIBC_SPECS_DIR/$GLIBC_DSRPT_SRC.c $LIBC_DIR/
-  cp $GLIBC_SPECS_DIR/$GLIBC_DSRPT_SRC.h $LIBC_DIR/
+#  cp $GLIBC_SPECS_DIR/$GLIBC_DSRPT_SRC.c $LIBC_DIR/
+#  cp $GLIBC_SPECS_DIR/$GLIBC_DSRPT_SRC.h $LIBC_DIR/
 
-  gcc -shared -o $LIBC_DIR/$GLIBC_DSRPT_OBJ -fPIC $LIBC_DIR/$GLIBC_DSRPT_SRC.c
-  mv $LIBC_DIR/$GLIBC_DSRPT_OBJ /usr/local/lib/
-  mv $GLIBC_SPECS_DIR/$GLIBC_DSRPT_SRC.h /usr/local/include/
-  ldconfig
+#  gcc -shared -o $LIBC_DIR/$GLIBC_DSRPT_OBJ -fPIC $LIBC_DIR/$GLIBC_DSRPT_SRC.c
+#  mv $LIBC_DIR/$GLIBC_DSRPT_OBJ /usr/local/lib/
+#  mv $GLIBC_SPECS_DIR/$GLIBC_DSRPT_SRC.h /usr/local/include/
+#  ldconfig
 
-  gcc $DIR/client.c -o $DIR/client -ldsrpt
-  chmod +x $DIR/client
+#  gcc $DIR/client.c -o $DIR/client -ldsrpt
+#  chmod +x $DIR/client
 
 
-  # LIBC_VER=$(ldd --version | awk '/ldd/{print $NF}')
-  # LIBC_PACKAGE_NAME=glibc-$LIBC_VER
+   LIBC_VER=$(ldd --version | awk '/ldd/{print $NF}')
+   LIBC_PACKAGE_NAME=glibc-$LIBC_VER
 
-  # wget https://ftp.gnu.org/gnu/glibc/$LIBC_PACKAGE_NAME.tar.gz
-  # tar -xvf $LIBC_PACKAGE_NAME.tar.gz -C.
-  # mv $DIR/$LIBC_PACKAGE_NAME $LIBC_DIR
-
+#   wget https://ftp.gnu.org/gnu/glibc/$LIBC_PACKAGE_NAME.tar.gz
+   tar -xvf $LIBC_PACKAGE_NAME.tar.gz -C.
+   mv $DIR/$LIBC_PACKAGE_NAME $LIBC_DIR
+  # LIBC_DIR="${LIBC_DIR}${$LIBC_PACKAGE_NAME}"
   # LIBC_SRC=$LIBC_DIR/sysdeps/unix/sysv/linux/
   # LIBC_SRC_FILE=$LIBC_SRC/dsrpt-syscall.c
 
@@ -90,57 +92,60 @@ function setupLibC() {
   # patch $LIBC_DIR/include/unistd.h ./unistd.h.patch 
 }
 
-mkdir $INSTALLTION_DIR
+mkdir -p $INSTALLTION_DIR
 
-if ! [ -d $KERNEL_DIR ]; then
-   setupKernel
-fi
+#if ! [ -d $KERNEL_DIR ]; then
+#   setupKernel
+#fi
 
-cp $KERNEL_SPECS_DIR/dsrpt.c $SYSCALLS_DIR
+#cp $KERNEL_SPECS_DIR/dsrpt.c $SYSCALLS_DIR
 
 
-if ! [ -d $SYSCALLS_DIR ]; then
-  setupSystemCalls
-fi
+#if ! [ -d $SYSCALLS_DIR ]; then
+#  setupSystemCalls
+#fi
 
-if ! [ -d $LIBC_DIR ]; then
+#if ! [ -d $LIBC_DIR ]; then
   setupLibC
-fi
+#fi
 
 
 
 
 
-echo "setting up prerequisites"
+#echo "setting up prerequisites"
 
-#kernel
-cd $KERNEL_DIR
+##kernel
+#cd $KERNEL_DIR
 
-apt-get install gcc libncurses5-dev bison flex libssl-dev libelf-dev bc dwarves
+#apt-get install gcc libncurses5-dev bison flex libssl-dev libelf-dev bc dwarves
+#apt-get update
+#apt-get upgrade
+
+#make oldconfig
+#make -j $(nproc)
+#make -j $(nproc) modules_install
+#make install
+
+
+
+
+apt-get install build-essential gcc libncurses5-dev bison flex libssl-dev libelf-dev bc dwarves
 apt-get update
 apt-get upgrade
+apt-get build-dep glibc
 
-make oldconfig
-make -j $(nproc)
-make -j $(nproc) modules_install
-make install
+LIBC_DIR+="/${LIBC_PACKAGE_NAME}"
 
+mkdir -p $LIBC_DIR/glibc-build
+cd $LIBC_DIR/glibc-build
 
+echo "+++++++++++++++++++++++ $(pwd)"
+export glibc_install="$(pwd)/install"
+../configure --prefix "$glibc_install"
 
-
-# apt-get install build-essential gcc libncurses5-dev bison flex libssl-dev libelf-dev bc dwarves
-# apt-get update
-# apt-get upgrade
-# apt-get build-dep glibc
-
-# mkdir -p $LIBC_DIR/glibc-build
-# cd $LIBC_DIR/glibc-build
-
-# export glibc_install="$(pwd)/install"
-# ../configure --prefix "$glibc_install"
-
-# make -j `nproc`
-# make install -j `nproc`
+make -j `nproc`
+make install -j `nproc`
 
 
 
